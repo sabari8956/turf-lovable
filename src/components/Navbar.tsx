@@ -27,6 +27,14 @@ export function Navbar() {
             >
               My Bookings
             </Link>
+            <Link
+              to="/dashboard"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                location.pathname.startsWith("/dashboard") ? "text-primary" : "text-secondary"
+              }`}
+            >
+              Dashboard
+            </Link>
           </div>
         </div>
       </div>

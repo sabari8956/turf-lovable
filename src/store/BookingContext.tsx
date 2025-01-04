@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface TimeSlot {
   id: string;
@@ -30,6 +30,8 @@ interface BookingContextType {
   turfs: Turf[];
   bookings: Booking[];
   bookSlot: (turfId: string, slotId: string) => void;
+  addTurf: (turf: Omit<Turf, "id">) => void;
+  removeTurf: (id: string) => void;
 }
 
 const MOCK_TURFS: Turf[] = [
@@ -125,8 +127,16 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     });
   }, [turfs, toast]);
 
+  const addTurf = useCallback((newTurf: Omit<Turf, "id">) => {
+    setTurfs(prev => [...prev, { ...newTurf, id: `${Date.now()}` }]);
+  }, []);
+
+  const removeTurf = useCallback((id: string) => {
+    setTurfs(prev => prev.filter(turf => turf.id !== id));
+  }, []);
+
   return (
-    <BookingContext.Provider value={{ turfs, bookings, bookSlot }}>
+    <BookingContext.Provider value={{ turfs, bookings, bookSlot, addTurf, removeTurf }}>
       {children}
     </BookingContext.Provider>
   );
