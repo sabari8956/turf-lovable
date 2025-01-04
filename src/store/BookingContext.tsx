@@ -71,52 +71,59 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   const bookSlot = useCallback((turfId: string, slotId: string) => {
-    setTurfs((prevTurfs) => {
-      const newTurfs = prevTurfs.map((turf) => {
-        if (turf.id === turfId) {
-          const slots = turf.slots.map((slot) => {
-            if (slot.id === slotId) {
-              if (slot.isBooked) {
-                toast({
-                  variant: "destructive",
-                  title: "Slot already booked",
-                  description: "Please select another time slot",
-                });
-                return slot;
-              }
-              return { ...slot, isBooked: true };
-            }
-            return slot;
-          });
-          return { ...turf, slots };
-        }
-        return turf;
+    const turf = turfs.find((t) => t.id === turfId);
+    const slot = turf?.slots.find((s) => s.id === slotId);
+
+    if (!turf || !slot) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Invalid turf or slot selected",
       });
+      return;
+    }
 
-      const turf = newTurfs.find((t) => t.id === turfId);
-      const slot = turf?.slots.find((s) => s.id === slotId);
+    if (slot.isBooked) {
+      toast({
+        variant: "destructive",
+        title: "Slot already booked",
+        description: "Please select another time slot",
+      });
+      return;
+    }
 
-      if (turf && slot && !slot.isBooked) {
-        const newBooking: Booking = {
-          id: `${Date.now()}`,
-          turfId,
-          turfName: turf.name,
-          slotId,
-          slotTime: slot.time,
-          bookingDate: new Date().toISOString(),
-        };
+    // Create the new booking first
+    const newBooking: Booking = {
+      id: `${Date.now()}`,
+      turfId,
+      turfName: turf.name,
+      slotId,
+      slotTime: slot.time,
+      bookingDate: new Date().toISOString(),
+    };
 
-        setBookings((prev) => [...prev, newBooking]);
+    // Update the bookings state
+    setBookings((prev) => [...prev, newBooking]);
 
-        toast({
-          title: "Booking Confirmed!",
-          description: `You've successfully booked ${turf.name} for ${slot.time}`,
-        });
-      }
+    // Then update the turfs state to mark the slot as booked
+    setTurfs((prevTurfs) =>
+      prevTurfs.map((t) =>
+        t.id === turfId
+          ? {
+              ...t,
+              slots: t.slots.map((s) =>
+                s.id === slotId ? { ...s, isBooked: true } : s
+              ),
+            }
+          : t
+      )
+    );
 
-      return newTurfs;
+    toast({
+      title: "Booking Confirmed!",
+      description: `You've successfully booked ${turf.name} for ${slot.time}`,
     });
-  }, [toast]);
+  }, [turfs, toast]);
 
   return (
     <BookingContext.Provider value={{ turfs, bookings, bookSlot }}>
