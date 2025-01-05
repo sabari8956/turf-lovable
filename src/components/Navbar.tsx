@@ -1,7 +1,28 @@
 import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Navbar() {
   const location = useLocation();
+  const [isHost, setIsHost] = useState(false);
+
+  useEffect(() => {
+    const checkHostStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) return;
+
+      const { data: profile } = await supabase
+        .from('users')
+        .select('user_type')
+        .eq('id', session.user.id)
+        .single();
+
+      setIsHost(profile?.user_type === 'host');
+    };
+
+    checkHostStatus();
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b">
@@ -27,13 +48,23 @@ export function Navbar() {
             >
               My Bookings
             </Link>
+            {isHost && (
+              <Link
+                to="/dashboard"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  location.pathname.startsWith("/dashboard") ? "text-primary" : "text-secondary"
+                }`}
+              >
+                Dashboard
+              </Link>
+            )}
             <Link
-              to="/dashboard"
+              to="/profile"
               className={`text-sm font-medium transition-colors hover:text-primary ${
-                location.pathname.startsWith("/dashboard") ? "text-primary" : "text-secondary"
+                location.pathname === "/profile" ? "text-primary" : "text-secondary"
               }`}
             >
-              Dashboard
+              Profile
             </Link>
           </div>
         </div>

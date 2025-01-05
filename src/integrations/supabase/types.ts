@@ -9,7 +9,130 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          created_at: string
+          id: string
+          slot_id: string
+          status: Database["public"]["Enums"]["booking_status"] | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          slot_id: string
+          status?: Database["public"]["Enums"]["booking_status"] | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          slot_id?: string
+          status?: Database["public"]["Enums"]["booking_status"] | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_slot"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "slots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      slots: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          start_time: string
+          turf_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          start_time: string
+          turf_id: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          start_time?: string
+          turf_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_turf"
+            columns: ["turf_id"]
+            isOneToOne: false
+            referencedRelation: "turfs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      turfs: {
+        Row: {
+          created_at: string
+          host_id: string
+          id: string
+          location: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          host_id: string
+          id?: string
+          location?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          host_id?: string
+          id?: string
+          location?: string | null
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_host"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          user_type: Database["public"]["Enums"]["user_type"] | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          user_type?: Database["public"]["Enums"]["user_type"] | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          user_type?: Database["public"]["Enums"]["user_type"] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +141,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      booking_status: "confirmed" | "canceled" | "completed"
+      user_type: "normal" | "host"
     }
     CompositeTypes: {
       [_ in never]: never
