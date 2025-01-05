@@ -4,9 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { AddTimeSlotForm } from "@/components/AddTimeSlotForm";
+import { TurfManager } from "@/components/turfs/TurfManager";
 import {
   Dialog,
   DialogContent,
@@ -14,20 +13,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-interface Turf {
-  id: string;
-  name: string;
-  location: string;
-  created_at: string;
-}
-
-interface Slot {
-  id: string;
-  turf_id: string;
-  start_time: string;
-  end_time: string;
-}
+import { Turf } from "@/types/turfs";
+import { Slot } from "@/types/slots";
 
 export default function HostDashboard() {
   const navigate = useNavigate();
@@ -181,7 +168,6 @@ export default function HostDashboard() {
       description: "Time slot deleted successfully.",
     });
     
-    // Refresh the slots for this specific turf
     fetchSlots(turfId);
   };
 
@@ -226,47 +212,14 @@ export default function HostDashboard() {
 
       <div className="grid gap-6">
         {turfs.map((turf) => (
-          <Card key={turf.id}>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>{turf.name}</CardTitle>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDeleteTurf(turf.id)}
-                >
-                  Delete Turf
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">{turf.location}</p>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <AddTimeSlotForm 
-                  turfId={turf.id} 
-                  onSlotAdded={() => handleSlotAdded(turf.id)} 
-                />
-                <div className="grid gap-2">
-                  {slots[turf.id]?.map((slot) => (
-                    <div
-                      key={slot.id}
-                      className="flex justify-between items-center p-2 bg-accent rounded-md"
-                    >
-                      <span>
-                        {slot.start_time} - {slot.end_time}
-                      </span>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteSlot(slot.id, turf.id)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <TurfManager
+            key={turf.id}
+            turf={turf}
+            slots={slots[turf.id] || []}
+            onDeleteTurf={handleDeleteTurf}
+            onSlotAdded={handleSlotAdded}
+            onSlotDeleted={handleDeleteSlot}
+          />
         ))}
       </div>
     </div>
