@@ -161,6 +161,30 @@ export default function HostDashboard() {
     fetchTurfs();
   };
 
+  const handleDeleteSlot = async (slotId: string, turfId: string) => {
+    const { error } = await supabase
+      .from('slots')
+      .delete()
+      .eq('id', slotId);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete slot.",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Time slot deleted successfully.",
+    });
+    
+    // Refresh the slots for this specific turf
+    fetchSlots(turfId);
+  };
+
   const handleSlotAdded = (turfId: string) => {
     fetchSlots(turfId);
   };
